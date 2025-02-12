@@ -1,7 +1,7 @@
 import '@fortawesome/fontawesome-free/css/all.css';
 import 'bulma/css/bulma.css';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getTodos, getUser } from './api';
 import { Loader } from './components/Loader';
 import { TodoFilter } from './components/TodoFilter';
@@ -18,8 +18,12 @@ export const App: React.FC = () => {
   const [query, setQuery] = useState<string>('');
   const [filterBy, setFilterBy] = useState<string>('all');
 
+  const fetchTodos = useCallback(() => {
+    return getTodos();
+  }, []);
+
   useEffect(() => {
-    getTodos().then(todosFromServer => {
+    fetchTodos().then(todosFromServer => {
       let filteredTodos = [...todosFromServer];
 
       if (query) {
@@ -36,13 +40,13 @@ export const App: React.FC = () => {
 
       setTodos(filteredTodos);
     });
-  }, [query, filterBy]);
+  }, [query, filterBy, fetchTodos]);
 
   function openModal() {
     setModalIsOpen(true);
   }
 
-  function closeModel() {
+  function closeModal() {
     setModalIsOpen(false);
     setUser(null);
     setSelectTodo(null);
@@ -113,7 +117,7 @@ export const App: React.FC = () => {
       </div>
 
       {modalIsOpen && (
-        <TodoModal user={user} todo={selectTodo} onClose={closeModel} />
+        <TodoModal user={user} todo={selectTodo} onClose={closeModal} />
       )}
     </>
   );
